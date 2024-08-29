@@ -2,20 +2,24 @@ package com.fastcampus.kafkahandson.consumer;
 
 import com.fastcampus.kafkahandson.model.MyMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-
-import java.util.function.Consumer;
 
 @Slf4j
 @Component
-public class MyConsumer implements Consumer<Message<MyMessage>> {
+public class MyConsumer {
 
     MyConsumer() {
       log.info("MyConsumer init!");
     }
-    @Override
-    public void accept(Message<MyMessage> message) {
-        log.info("Message arrived! - {}", message.getPayload());
+
+    @KafkaListener(
+            topics = { "my-json-topic" },
+            groupId = "test-consumer-group"
+    )
+
+    public void accept(ConsumerRecord<String, MyMessage> message) {
+        log.info("Message arrived! - {}", message.value());
     }
 }
