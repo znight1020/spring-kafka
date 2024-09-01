@@ -5,12 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import static com.fastcampus.kafkahandson.model.Topic.MY_JSON_TOPIC;
+
 @RequiredArgsConstructor
 @Component
 public class MyProducer {
     private final KafkaTemplate<String, MyMessage> kafkaTemplate;
 
     public void sendMessage(MyMessage myMessage) {
-        kafkaTemplate.send("my-json-topic", String.valueOf(myMessage.getAge()), myMessage);
+        kafkaTemplate.send(MY_JSON_TOPIC, String.valueOf(myMessage.getAge()), myMessage);
     }
 }
