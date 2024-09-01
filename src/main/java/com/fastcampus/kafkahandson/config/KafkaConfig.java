@@ -57,8 +57,8 @@ public class KafkaConfig {
     public ProducerFactory<String ,Object> producerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getKeySerializer());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getValueSerializer());
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getKeySerializer());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaProperties.getProducer().getValueSerializer());
         props.put(ProducerConfig.ACKS_CONFIG, kafkaProperties.getProducer().getAcks());
 
         return new DefaultKafkaProducerFactory<>(props);
