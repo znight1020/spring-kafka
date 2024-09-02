@@ -8,6 +8,6 @@ spring:
       concurrency: 1
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringDeserializer
-      acks: 0
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: -1
 
