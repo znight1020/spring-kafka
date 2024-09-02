@@ -11,3 +11,14 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: -1
 
+  datasource:
+    url: jdbc:mysql://localhost:3307/campus?serverTimezone=Asia/Seoul
+    username : myuser
+    password : mypassword
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
