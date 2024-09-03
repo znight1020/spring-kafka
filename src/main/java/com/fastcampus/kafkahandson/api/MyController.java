@@ -1,11 +1,8 @@
 package com.fastcampus.kafkahandson.api;
 
-import com.fastcampus.kafkahandson.model.MyMessage;
-import com.fastcampus.kafkahandson.model.MyModel;
-import com.fastcampus.kafkahandson.model.Request;
-import com.fastcampus.kafkahandson.producer.MyProducer;
+import com.fastcampus.kafkahandson.model.dto.MyModel;
+import com.fastcampus.kafkahandson.model.dto.Request;
 import com.fastcampus.kafkahandson.service.MyService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

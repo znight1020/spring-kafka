@@ -1,4 +1,4 @@
-package com.fastcampus.kafkahandson.model;
+package com.fastcampus.kafkahandson.model.message;
 
 import lombok.Data;
 

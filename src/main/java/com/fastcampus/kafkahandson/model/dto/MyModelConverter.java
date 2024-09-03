@@ -1,6 +1,7 @@
-package com.fastcampus.kafkahandson.model;
+package com.fastcampus.kafkahandson.model.dto;
 
 import com.fastcampus.kafkahandson.data.MyEntity;
+import com.fastcampus.kafkahandson.model.message.MyCdcMessage;
 
 public class MyModelConverter {
     public static MyModel toModel(MyEntity entity) {
@@ -40,9 +41,9 @@ public class MyModelConverter {
     }
 
     public static MyCdcMessage toMessage(Integer id, MyModel model, OperationType operationType){
-        MyCdcMessage.Payload payload = null;
+        Payload payload = null;
         if(operationType == OperationType.CREATE || operationType == OperationType.UPDATE) {
-            payload = new MyCdcMessage.Payload(
+            payload = new Payload(
                     model.getId(),
                     model.getUserId(),
                     model.getUserAge(),

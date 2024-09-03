@@ -1,6 +1,7 @@
 package com.fastcampus.kafkahandson.producer;
 
-import com.fastcampus.kafkahandson.model.MyMessage;
+import com.fastcampus.kafkahandson.common.CustomObjectMapper;
+import com.fastcampus.kafkahandson.model.message.MyMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import static com.fastcampus.kafkahandson.model.Topic.MY_JSON_TOPIC;
 @RequiredArgsConstructor
 @Component
 public class MyProducer {
-    ObjectMapper objectMapper = new ObjectMapper();
+    private final CustomObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
     public void sendMessage(MyMessage myMessage) throws JsonProcessingException {

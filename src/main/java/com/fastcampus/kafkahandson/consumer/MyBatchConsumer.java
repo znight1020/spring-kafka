@@ -1,8 +1,10 @@
 package com.fastcampus.kafkahandson.consumer;
 
-import com.fastcampus.kafkahandson.model.MyMessage;
+import com.fastcampus.kafkahandson.common.CustomObjectMapper;
+import com.fastcampus.kafkahandson.model.message.MyMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -19,8 +21,9 @@ import static com.fastcampus.kafkahandson.model.Topic.MY_JSON_TOPIC;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MyBatchConsumer {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final CustomObjectMapper objectMapper;
     private final Map<String, Integer> idHistoryMap = new ConcurrentHashMap<>();
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
@@ -31,7 +34,7 @@ public class MyBatchConsumer {
             containerFactory = "batchKafkaListenerContainerFactory"
     )
 
-    public void accept(List<ConsumerRecord<String, String>> messages, Acknowledgment ack) {
+    public void listen(List<ConsumerRecord<String, String>> messages, Acknowledgment ack) {
         ObjectMapper objectMapper = new ObjectMapper();
         // log.info("[Batch Consumer] Message arrived! - count {}", messages.size());
         messages.forEach(message -> executorService.submit(() -> {

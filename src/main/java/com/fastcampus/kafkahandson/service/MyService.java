@@ -1,6 +1,6 @@
 package com.fastcampus.kafkahandson.service;
 
-import com.fastcampus.kafkahandson.model.MyModel;
+import com.fastcampus.kafkahandson.model.dto.MyModel;
 
 import java.util.List;
 

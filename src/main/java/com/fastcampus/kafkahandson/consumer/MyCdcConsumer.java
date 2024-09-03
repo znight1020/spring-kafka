@@ -1,8 +1,10 @@
 package com.fastcampus.kafkahandson.consumer;
 
-import com.fastcampus.kafkahandson.model.MyCdcMessage;
+import com.fastcampus.kafkahandson.common.CustomObjectMapper;
+import com.fastcampus.kafkahandson.model.message.MyCdcMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -16,13 +18,9 @@ import static com.fastcampus.kafkahandson.model.Topic.MY_CDC_TOPIC;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MyCdcConsumer {
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    // ConcurrentHashMap 을 사용해야 한줄 서기가 가능하다.
-    // 보통은 Redis 와 같이 key 저장소를 두지만 개념적으로 하기 위해 메모리 방식으로 구현
-    // id 에 대해 Exactly Once 를 보장하기 위함
-    private final Map<String, Integer> idHistoryMap = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
 
     @KafkaListener(
             topics = { MY_CDC_TOPIC },
@@ -30,9 +28,9 @@ public class MyCdcConsumer {
             concurrency = "1"
     )
 
-    public void accept(ConsumerRecord<String, String> message, Acknowledgment ack) throws JsonProcessingException {
+    public void listen(ConsumerRecord<String, String> message, Acknowledgment ack) throws JsonProcessingException {
         MyCdcMessage myCdcMessage = objectMapper.readValue(message.value(), MyCdcMessage.class);
         log.info("[CDC Consumer] Message arrived! - {}", myCdcMessage.getPayload());
-        ack.acknowledge(); // 수동 커밋
+        ack.acknowledge();
     }
 }
