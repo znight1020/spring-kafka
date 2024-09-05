@@ -1,8 +1,7 @@
 package com.fastcampus.kafkahandson.config;
 
-import org.apache.kafka.clients.consumer.Consumer;
+import com.fastcampus.kafkahandson.model.Topic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -15,13 +14,9 @@ import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.*;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.ExponentialBackOff;
-import org.springframework.util.backoff.FixedBackOff;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Configuration
 public class KafkaConfig {
@@ -71,17 +66,14 @@ public class KafkaConfig {
     @Primary
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory(
             ConsumerFactory<String, Object> consumerFactory,
-            CommonErrorHandler errorHandler
+            KafkaTemplate<String, Object> kafkaTemplate
     ) {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-
-        /*DefaultErrorHandler errorHandler = new DefaultErrorHandler(generatedBackoff());
-        errorHandler.addNotRetryableExceptions(IllegalAccessException.class); // NotRetryable 예외 발생 시 정책을 따르지 않고 넘어간다.
-        factory.setCommonErrorHandler(errorHandler); // default ErrorHandler 설정*/
-
-        //factory.setCommonErrorHandler(new CommonContainerStoppingErrorHandler()); // 예외 발생 시 Consumer 를 중지시킨다.
-        factory.setCommonErrorHandler(errorHandler);
+        //factory.setCommonErrorHandler(new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate), generatedBackoff()));
+        factory.setCommonErrorHandler(new DefaultErrorHandler(((record, exception) -> {
+            kafkaTemplate.send(Topic.MY_CUSTOM_CDC_TOPIC_DLT, (String) record.key(), record.value());
+        }), generatedBackoff()));
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         // factory.setConcurrency(1); // Listener 에서 정의해도 된다.
 
@@ -94,7 +86,6 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(batchConsumerFactory);
         factory.setBatchListener(true);
-        // factory.setConcurrency(1); // Listener 에서 정의해도 된다.
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
 
         return factory;
@@ -119,7 +110,17 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory(kafkaProperties));
     }
 
-    @Bean
+    private BackOff generatedBackoff() {
+        ExponentialBackOff backOff = new ExponentialBackOff(1000L, 2L); // 1000ms 간격으로 시작해서 2배씩 간격이 증가
+        // 1(1)/2(2)/3(4)/4(8) 간격으로 retry 진행 후 DLT 에 넣는 걸 기대한다.
+        backOff.setMaxElapsedTime(10000L); // 최대 10000ms 까지만 증가
+        // backOff.setMaxAttempts(3); // 횟수로 지정
+
+        return backOff;
+        // return new FixedBackOff(1000L, 2L);
+    }
+
+    /*@Bean
     @Primary
     CommonErrorHandler errorHandler() {
         CommonContainerStoppingErrorHandler csHandler = new CommonContainerStoppingErrorHandler();
@@ -140,14 +141,5 @@ public class KafkaConfig {
         };
         errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
         return errorHandler;
-    }
-
-    private BackOff generatedBackoff() {
-        ExponentialBackOff backOff = new ExponentialBackOff(1000L, 2L); // 1000ms 간격으로 시작해서 2배씩 간격이 증가
-        // backOff.setMaxElapsedTime(10000L); // 최대 10000ms 까지만 증가
-        backOff.setMaxAttempts(3); // 횟수로 지정
-
-        return backOff;
-        // return new FixedBackOff(1000L, 2L);
-    }
+    }*/
 }
