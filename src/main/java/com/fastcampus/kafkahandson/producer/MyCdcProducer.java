@@ -20,6 +20,7 @@ public class MyCdcProducer {
     public void sendMessage(MyCdcMessage myMessage) throws JsonProcessingException {
         kafkaTemplate.send(
                 MY_CDC_TOPIC,
+                String.valueOf(myMessage.getId()),
                 objectMapper.writeValueAsString(myMessage)
         );
     }

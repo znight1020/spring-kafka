@@ -25,7 +25,7 @@ public class MyCdcConsumer {
     @KafkaListener(
             topics = { MY_CDC_TOPIC },
             groupId = "cdc-consumer-group",
-            concurrency = "1"
+            concurrency = "3"
     )
 
     public void listen(ConsumerRecord<String, String> message, Acknowledgment ack) throws JsonProcessingException {
@@ -34,3 +34,5 @@ public class MyCdcConsumer {
         ack.acknowledge();
     }
 }
+
+// CDC : Change Data Capture (데이터마다의 변경사항 추적 -> 하나의 데이터 내에서 변경사항 순서가 꼬이지 않으면 된다.)
